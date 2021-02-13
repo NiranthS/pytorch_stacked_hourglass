@@ -15,8 +15,8 @@ __config__ = {
     'inference': {
         'nstack': 2,
         'inp_dim': 256,
-        'oup_dim': 16,
-        'num_parts': 16,
+        'oup_dim': 14,
+        'num_parts': 14,
         'increase': 0,
         'keys': ['imgs'],
         'num_eval': 2958, ## number of val examples used. entire set is 2958
