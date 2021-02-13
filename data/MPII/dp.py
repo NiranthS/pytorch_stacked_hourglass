@@ -82,7 +82,7 @@ class Dataset(torch.utils.data.Dataset):
         scale *= aug_scale
             
         mat_mask = utils.img.get_transform(center, scale, (self.output_res, self.output_res), aug_rot)[:2]
-
+        # import pdb; pdb.set_trace()
         mat = utils.img.get_transform(center, scale, (self.input_res, self.input_res), aug_rot)[:2]
         inp = cv2.warpAffine(cropped, mat, (self.input_res, self.input_res)).astype(np.float32)/255
         keypoints[:,:,0:2] = utils.img.kpt_affine(keypoints[:,:,0:2], mat_mask)
@@ -133,9 +133,9 @@ def init(config):
     batchsize = config['train']['batchsize']
     current_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(current_path)
-    import ref as ds
+    import ref_syn as ds
     ds.init()
-
+    # import pdb; pdb.set_trace()
     train, valid = ds.setup_val_split()
     dataset = { key: Dataset(config, ds, data) for key, data in zip( ['train', 'valid'], [train, valid] ) }
 
@@ -146,6 +146,7 @@ def init(config):
         loaders[key] = torch.utils.data.DataLoader(dataset[key], batch_size=batchsize, shuffle=True, num_workers=config['train']['num_workers'], pin_memory=False)
 
     def gen(phase):
+        # import pdb; pdb.set_trace()
         batchsize = config['train']['batchsize']
         batchnum = config['train']['{}_iters'.format(phase)]
         loader = loaders[phase].__iter__()

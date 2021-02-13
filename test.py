@@ -8,7 +8,7 @@ import copy
 
 from utils.group import HeatmapParser
 import utils.img
-import data.MPII.ref as ds
+import data.MPII.ref_syn as ds
 
 parser = HeatmapParser()
 
@@ -43,7 +43,7 @@ def inference(img, func, config, c, s):
 
     def array2dict(tmp):
         return {
-            'det': tmp[0][:,:,:16],
+            'det': tmp[0][:,:,:46],
         }
 
     tmp1 = array2dict(func([inp]))
@@ -164,7 +164,7 @@ def get_img(config, num_eval=2958, num_train=300):
         kp = train_f['part'][i]
         vis = train_f['visible'][i]
         kp2 = np.insert(kp, 2, vis, axis=1)
-        kps = np.zeros((1, 16, 3))
+        kps = np.zeros((1, 14, 3))
         kps[0] = kp2
         
         ## normalize (to make errors more fair on high pixel imgs)
@@ -188,7 +188,7 @@ def get_img(config, num_eval=2958, num_train=300):
         kp = val_f['part'][i]
         vis = val_f['visible'][i]
         kp2 = np.insert(kp, 2, vis, axis=1)
-        kps = np.zeros((1, 16, 3))
+        kps = np.zeros((1, 14, 3))
         kps[0] = kp2
         
         ## normalize (to make errors more fair on high pixel imgs)
@@ -209,7 +209,7 @@ def main():
         if len(ans) > 0:
             ans = ans[:,:,:3]
 
-        ## ans has shape N,16,3 (num preds, joints, x/y/visible)
+        ## ans has shape N,14,3 (num preds, joints, x/y/visible)
         pred = []
         for i in range(ans.shape[0]):
             pred.append({'keypoints': ans[i,:,:]})
