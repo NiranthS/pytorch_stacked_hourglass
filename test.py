@@ -8,7 +8,7 @@ import copy
 
 from utils.group import HeatmapParser
 import utils.img
-import data.MPII.ref as ds
+import data.MPII.ref_syn as ds
 
 parser = HeatmapParser()
 
@@ -168,8 +168,8 @@ def get_img(config, num_eval=2958, num_train=300):
         kps[0] = kp2
         
         ## normalize (to make errors more fair on high pixel imgs)
-        n = train_f['normalize'][i]
-        
+        # n = train_f['normalize'][i]
+        n = 1
         yield kps, im, c, s, n
                 
     
@@ -192,8 +192,8 @@ def get_img(config, num_eval=2958, num_train=300):
         kps[0] = kp2
         
         ## normalize (to make errors more fair on high pixel imgs)
-        n = val_f['normalize'][i]
-        
+        # n = val_f['normalize'][i]
+        n = 1
         yield kps, im, c, s, n
     
 
