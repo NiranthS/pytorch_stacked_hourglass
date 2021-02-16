@@ -91,10 +91,12 @@ def make_network(configs):
     if torch.cuda.is_available():
         print('Using GPU')
         forward_net = DataParallel(poseNet.cuda())
+        param = torch.load('../exp/kp/checkpoint.pt')
     else:
         print('Not using GPU')
         forward_net = DataParallel(poseNet)
-
+        param = torch.load('exp/kp/checkpoint.pt', map_location= torch.device('cpu'))
+    import pdb; pdb.set_trace()
     config['net'] = Trainer(forward_net, configs['inference']['keys'], calc_loss)
     
     ## optimizer, experiment setup
