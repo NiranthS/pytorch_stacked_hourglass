@@ -38,7 +38,7 @@ def reload(config):
             checkpoint = torch.load(resume_file)
             my_model_state_dict = config['inference']['net'].state_dict()
             count = 0
-            
+            # import pdb;pdb.set_trace()
             # pretrained_weights = torch.load(os.path.join(save_path, args.env_name + "_ft.pt"))
             # pretrained_weights['']
             pretrained_weights_items = list(checkpoint['state_dict'].items())
@@ -49,11 +49,11 @@ def reload(config):
                 print(layer_name)
                 if count == 741:
                     break
-                # count += 1
+                count += 1
 
             config['inference']['net'].load_state_dict(my_model_state_dict)
-            config['train']['optimizer'].load_state_dict(checkpoint['optimizer'])
-            config['train']['epoch'] = checkpoint['epoch']
+            # config['train']['optimizer'].load_state_dict(checkpoint['optimizer'])
+            # config['train']['epoch'] = checkpoint['epoch']
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(resume, checkpoint['epoch']))
         else:
