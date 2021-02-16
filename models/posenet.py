@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from models.layers import Conv, Hourglass, Pool, Residual
 from task.loss import HeatmapLoss
+import torch.nn.functional as F
 
 class UnFlatten(nn.Module):
     def forward(self, input):
@@ -45,6 +46,17 @@ class PoseNet(nn.Module):
         self.nstack = nstack
         self.heatmapLoss = HeatmapLoss()
 
+        self.conv_1 = nn.Conv2d(inp_dim, 128, 3)
+        self.conv_2 = nn.Conv2d(128, 64, 3)
+
+        self.dense1 = nn.Linear(64*60*60, 1024)
+        self.dense2 = nn.Linear(1024, 1024)
+        self.dense3 = nn.Linear(1024, 82)
+        self.do1 = nn.Dropout(0.5)
+        self.do2 = nn.Dropout(0.5)
+        
+        
+
     def forward(self, imgs):
         ## our posenet
         x = imgs.permute(0, 3, 1, 2) #x of size 1,3,inpdim,inpdim
@@ -57,11 +69,23 @@ class PoseNet(nn.Module):
             combined_hm_preds.append(preds)
             if i < self.nstack - 1:
                 x = x + self.merge_preds[i](preds) + self.merge_features[i](feature)
-        return torch.stack(combined_hm_preds, 1)
+        # import pdb; pdb.set_trace()
+        features_ds = F.relu(self.conv_1(feature))
+        features_ds = F.relu(self.conv_2(features_ds))
+        
+        features_ds = features_ds.view(-1, 64*60*60)
+        dense = F.relu(self.dense1(features_ds))
+        dense = self.do1(dense)
+        dense = F.relu(self.dense2(dense))
+        dense = self.do2(dense)
+        dense = self.dense3(dense)
+        combined_hm_preds.append(dense)
+        # return torch.stack(combined_hm_preds, 1)
+        return dense
 
     def calc_loss(self, combined_hm_preds, heatmaps):
-        combined_loss = []
-        for i in range(self.nstack):
-            combined_loss.append(self.heatmapLoss(combined_hm_preds[0][:,i], heatmaps))
-        combined_loss = torch.stack(combined_loss, dim=1)
+        # for i in range(self.nstack):
+        #     combined_loss.append(self.heatmapLoss(combined_hm_preds[0][:,i], heatmaps))
+        # combined_loss = torch.stack(combined_loss, dim=1)
+        combined_loss = self.heatmapLoss(combined_hm_preds, heatmaps)
         return combined_loss

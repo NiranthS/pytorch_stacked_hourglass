@@ -83,6 +83,7 @@ def train(train_func, data_func, config, post_epoch=None):
 
         for phase in ['train', 'valid']:
             num_step = config['train']['{}_iters'.format(phase)]
+            # import pdb; pdb.set_trace()
             generator = data_func(phase)
             print('start', phase, config['opt'].exp)
 

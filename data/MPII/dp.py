@@ -59,6 +59,8 @@ class Dataset(torch.utils.data.Dataset):
         orig_img = ds.get_img(idx)
         path = ds.get_path(idx)
         orig_keypoints = ds.get_kps(idx)
+        ps_param = ds.get_ps_param(idx)
+        # import pdb; pdb.set_trace()
         kptmp = orig_keypoints.copy()
         c = ds.get_center(idx)
         s = ds.get_scale(idx)
@@ -103,7 +105,8 @@ class Dataset(torch.utils.data.Dataset):
                 orig_keypoints[0,i,1] = 0
         
         ## generate heatmaps on outres
-        heatmaps = self.generateHeatmap(keypoints)
+        # heatmaps = self.generateHeatmap(keypoints)
+        heatmaps = ps_param
         
         return inp.astype(np.float32), heatmaps.astype(np.float32)
 

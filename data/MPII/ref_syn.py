@@ -43,6 +43,8 @@ class MPII:
         t_part = np.expand_dims(np.array(train_f[0]['joint_self'])[:,:2], 0)
         t_visible = np.expand_dims(np.array(train_f[0]['joint_self'])[:,2], 0)
         t_imgname = [train_f[0]['img_paths']]
+        t_pose_param = train_f[0]['pose_parameters']
+        t_shape_param = train_f[0]['shape_parameters']
         # import pdb; pdb.set_trace()
         for ann in range(1, len(train_f)):
             self.t_center = np.vstack((self.t_center, train_f[ann]['objpos']))
@@ -50,6 +52,8 @@ class MPII:
             t_part = np.vstack((t_part, np.expand_dims(np.array(train_f[ann]['joint_self'])[:,:2], 0)))
             t_visible = np.vstack((t_visible, np.expand_dims(np.array(train_f[ann]['joint_self'])[:,2], 0)))
             t_imgname.append(train_f[ann]['img_paths'])
+            t_pose_param = np.vstack((t_pose_param, train_f[ann]['pose_parameters']))
+            t_shape_param = np.vstack((t_shape_param, train_f[ann]['shape_parameters']))
 
 
         self.v_center = val_f[0]['objpos']
@@ -57,12 +61,16 @@ class MPII:
         v_part = np.expand_dims(np.array(val_f[0]['joint_self'])[:, :2], 0)
         v_visible = np.expand_dims(np.array(val_f[0]['joint_self'])[:, 2], 0)
         v_imgname = [val_f[0]['img_paths']]
+        v_pose_param = val_f[0]['pose_parameters']
+        v_shape_param = val_f[0]['shape_parameters']
         for annv in range(1, len(val_f)):
             self.v_center = np.vstack((self.v_center, val_f[annv]['objpos']))
             v_scale = np.vstack((v_scale, val_f[annv]['scale_provided']))
             v_part = np.vstack((v_part, np.expand_dims(np.array(val_f[annv]['joint_self'])[:, :2], 0)))
             v_visible = np.vstack((v_visible, np.expand_dims(np.array(val_f[annv]['joint_self'])[:, 2], 0)))
             v_imgname.append(val_f[annv]['img_paths'])
+            v_pose_param = np.vstack((v_pose_param, val_f[annv]['pose_parameters']))
+            v_shape_param= np.vstack((v_shape_param,val_f[annv]['shape_parameters']))
         
 
         # t_normalize = train_f['normalize'][()]
@@ -89,6 +97,8 @@ class MPII:
         self.visible = np.append(t_visible, v_visible, axis=0)
         # self.normalize = np.append(t_normalize, v_normalize)
         self.imgname = t_imgname + v_imgname
+        self.pose_param = np.append(t_pose_param, v_pose_param, axis = 0)
+        self.shape_param = np.append(t_shape_param, v_shape_param, axis = 0)
         
         # import pdb; pdb.set_trace()
         print('Done (t={:0.2f}s)'.format(time.time()- tic))
@@ -97,7 +107,7 @@ class MPII:
         '''
         returns h5 file for train or val set
         '''
-        return self.imgname[idx], self.part[idx], self.visible[idx], self.center[idx], self.scale[idx], np.ones((self.visible.shape[0]))
+        return self.imgname[idx], self.part[idx], self.visible[idx], self.center[idx], self.scale[idx], np.ones((self.visible.shape[0])), self.pose_param[idx], self.shape_param[idx]
     
     def getLength(self):
         return len(self.t_center), len(self.v_center)
@@ -131,32 +141,48 @@ def setup_val_split():
     return np.array(train), np.array(valid)
     
 def get_img(idx):
-    imgname, __, __, __, __, __ = mpii.getAnnots(idx)
+    imgname, __, __, __, __, __, __, __ = mpii.getAnnots(idx)
     path = os.path.join(img_dir, imgname)
     img = imread(path)
     return img
 
 def get_path(idx):
-    imgname, __, __, __, __, __ = mpii.getAnnots(idx)
+    imgname, __, __, __, __, __, __, __ = mpii.getAnnots(idx)
     path = os.path.join(img_dir, imgname)
     return path
     
 def get_kps(idx):
-    __, part, visible, __, __, __ = mpii.getAnnots(idx)
+    __, part, visible, __, __, __, __, __ = mpii.getAnnots(idx)
     # import pdb; pdb.set_trace()
     kp2 = np.insert(part, 2, visible, axis=1)
     kps = np.zeros((1, 14, 3))
     kps[0] = kp2
     return kps
 
+def get_ps_param(idx):
+    __, __, __, __, __, __, pose, shape = mpii.getAnnots(idx)
+    # import pdb; pdb.set_trace()
+    param = np.zeros((1, 82))
+    param[0,:72] = pose
+    param[0, 72:] = shape
+    return param
+
 def get_normalized(idx):
-    __, __, __, __, __, n = mpii.getAnnots(idx)
+    __, __, __, __, __, n, __, __ = mpii.getAnnots(idx)
     return n
 
 def get_center(idx):
-    __, __, __, c, __, __ = mpii.getAnnots(idx)
+    __, __, __, c, __, __, __, __ = mpii.getAnnots(idx)
     return c
     
 def get_scale(idx):
-    __, __, __, __, s, __ = mpii.getAnnots(idx)
+    __, __, __, __, s, __, __, __ = mpii.getAnnots(idx)
+    return s
+
+def get_pose_param(idx):
+    __, __, __, __, __, __, p, __ = mpii.getAnnots(idx)
+    return p
+
+def get_shape_param(idx):
+    __, __, __, __, __, __, __, s = mpii.getAnnots(idx)
     return s

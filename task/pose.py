@@ -8,13 +8,14 @@ from torch import nn
 import os
 from torch.nn import DataParallel
 from utils.misc import make_input, make_output, importNet
+import hiddenlayer as hl
 
 __config__ = {
     'data_provider': 'data.MPII.dp',
     'network': 'models.posenet.PoseNet',
     'inference': {
         'nstack': 2,
-        'inp_dim': 256,
+        'inp_dim': 240,
         'oup_dim': 14,
         'num_parts': 14,
         'increase': 0,
@@ -66,8 +67,8 @@ class Trainer(nn.Module):
             return self.model(imgs, **inps)
         else:
             combined_hm_preds = self.model(imgs, **inps)
-            if type(combined_hm_preds)!=list and type(combined_hm_preds)!=tuple:
-                combined_hm_preds = [combined_hm_preds]
+            # if type(combined_hm_preds)!=list and type(combined_hm_preds)!=tuple:
+            #     combined_hm_preds = [combined_hm_preds]
             loss = self.calc_loss(**labels, combined_hm_preds=combined_hm_preds)
             return list(combined_hm_preds) + list([loss])
 
@@ -81,7 +82,19 @@ def make_network(configs):
     ## creating new posenet
     PoseNet = importNet(configs['network'])
     poseNet = PoseNet(**config)
-    forward_net = DataParallel(poseNet.cuda())
+    # transforms = [ hl.transforms.Prune('Constant') ] # Removes Constant nodes from graph.
+
+    # graph = hl.build_graph(poseNet, torch.zeros([1, 3, 256, 256]), transforms=transforms)
+    # graph.theme = hl.graph.THEMES['blue'].copy()
+    # graph.save('hg', format='png')
+    # import pdb; pdb.set_trace()
+    if torch.cuda.is_available():
+        print('Using GPU')
+        forward_net = DataParallel(poseNet.cuda())
+    else:
+        print('Not using GPU')
+        forward_net = DataParallel(poseNet)
+
     config['net'] = Trainer(forward_net, configs['inference']['keys'], calc_loss)
     
     ## optimizer, experiment setup
