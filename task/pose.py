@@ -15,7 +15,7 @@ __config__ = {
     'network': 'models.posenet.PoseNet',
     'inference': {
         'nstack': 2,
-        'inp_dim': 240,
+        'inp_dim': 256,
         'oup_dim': 14,
         'num_parts': 14,
         'increase': 0,
