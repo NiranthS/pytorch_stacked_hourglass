@@ -73,7 +73,7 @@ class PoseNet(nn.Module):
         features_ds = F.relu(self.conv_1(feature))
         features_ds = F.relu(self.conv_2(features_ds))
         
-        features_ds = features_ds.view(-1, 64*60*60)
+        features_ds = torch.reshape(features_ds, (-1, 64*60*60))
         dense = F.relu(self.dense1(features_ds))
         dense = self.do1(dense)
         dense = F.relu(self.dense2(dense))
