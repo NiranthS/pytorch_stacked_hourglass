@@ -47,7 +47,9 @@ def reload(config):
                 my_model_state_dict[key] = weights
                 print(count)
                 print(layer_name)
-                count += 1
+                if count == 741:
+                    break
+                # count += 1
 
             config['inference']['net'].load_state_dict(my_model_state_dict)
             config['train']['optimizer'].load_state_dict(checkpoint['optimizer'])
