@@ -36,8 +36,20 @@ def reload(config):
         if os.path.isfile(resume_file):
             print("=> loading checkpoint '{}'".format(resume))
             checkpoint = torch.load(resume_file)
+            my_model_state_dict = config['inference']['net'].state_dict()
+            count = 0
+            
+            # pretrained_weights = torch.load(os.path.join(save_path, args.env_name + "_ft.pt"))
+            # pretrained_weights['']
+            pretrained_weights_items = list(checkpoint['state_dict'].items())
+            for key,value in my_model_state_dict.items():
+                layer_name, weights = pretrained_weights_items[count]
+                my_model_state_dict[key] = weights
+                print(count)
+                print(layer_name)
+                count += 1
 
-            config['inference']['net'].load_state_dict(checkpoint['state_dict'])
+            config['inference']['net'].load_state_dict(my_model_state_dict)
             config['train']['optimizer'].load_state_dict(checkpoint['optimizer'])
             config['train']['epoch'] = checkpoint['epoch']
             print("=> loaded checkpoint '{}' (epoch {})"
