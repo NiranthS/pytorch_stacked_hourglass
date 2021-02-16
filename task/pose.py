@@ -96,7 +96,7 @@ def make_network(configs):
         print('Not using GPU')
         forward_net = DataParallel(poseNet)
         param = torch.load('exp/kp/checkpoint.pt', map_location= torch.device('cpu'))
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     config['net'] = Trainer(forward_net, configs['inference']['keys'], calc_loss)
     
     ## optimizer, experiment setup
