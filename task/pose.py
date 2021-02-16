@@ -91,7 +91,7 @@ def make_network(configs):
     if torch.cuda.is_available():
         print('Using GPU')
         forward_net = DataParallel(poseNet.cuda())
-        param = torch.load('../exp/kp/checkpoint.pt')
+        param = torch.load('exp/kp/checkpoint.pt')
     else:
         print('Not using GPU')
         forward_net = DataParallel(poseNet)
