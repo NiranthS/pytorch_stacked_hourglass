@@ -35,23 +35,23 @@ def reload(config):
         resume_file = os.path.join(resume, 'checkpoint.pt')
         if os.path.isfile(resume_file):
             print("=> loading checkpoint '{}'".format(resume))
-            checkpoint = torch.load(resume_file)
+            checkpoint = torch.load(resume_file, map_location  = torch.device('cpu'))
             my_model_state_dict = config['inference']['net'].state_dict()
             count = 0
             # import pdb;pdb.set_trace()
             # pretrained_weights = torch.load(os.path.join(save_path, args.env_name + "_ft.pt"))
             # pretrained_weights['']
-            pretrained_weights_items = list(checkpoint['state_dict'].items())
-            for key,value in my_model_state_dict.items():
-                layer_name, weights = pretrained_weights_items[count]
-                my_model_state_dict[key] = weights
-                print(count)
-                print(layer_name)
-                # if count == 741:
-                #     break
-                count += 1
+            # pretrained_weights_items = list(checkpoint['state_dict'].items())
+            # for key,value in my_model_state_dict.items():
+            #     layer_name, weights = pretrained_weights_items[count]
+            #     my_model_state_dict[key] = weights
+            #     print(count)
+            #     print(layer_name)
+            #     # if count == 741:
+            #     #     break
+            #     count += 1
 
-            config['inference']['net'].load_state_dict(my_model_state_dict)
+            config['inference']['net'].load_state_dict(checkpoint['state_dict'])
             # config['train']['optimizer'].load_state_dict(checkpoint['optimizer'])
             # config['train']['epoch'] = checkpoint['epoch']
             print("=> loaded checkpoint '{}' (epoch {})"
@@ -136,9 +136,10 @@ def init():
 
 def main():
     func, config = init()
+    # import pdb; pdb.set_trace()
     data_func = config['data_provider'].init(config)
     train(func, data_func, config)
-    print(datetime.now(timezone('EST')))
+    # print(datetime.now(timezone('EST')))
 
 if __name__ == '__main__':
     main()

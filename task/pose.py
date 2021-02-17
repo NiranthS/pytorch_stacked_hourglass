@@ -8,7 +8,8 @@ from torch import nn
 import os
 from torch.nn import DataParallel
 from utils.misc import make_input, make_output, importNet
-import hiddenlayer as hl
+# import hiddenlayer as hl
+import cv2
 
 __config__ = {
     'data_provider': 'data.MPII.dp',
@@ -30,7 +31,7 @@ __config__ = {
         'output_res': 64,
         'train_iters': 1000,
         'valid_iters': 10,
-        'learning_rate': 1e-3,
+        'learning_rate': 1e-2,
         'max_num_people' : 1,
         'loss': [
             ['combined_hm_loss', 1],
@@ -67,8 +68,20 @@ class Trainer(nn.Module):
             return self.model(imgs, **inps)
         else:
             combined_hm_preds = self.model(imgs, **inps)
+            # img = cv2.imread('/home/niranth/Desktop/projects/datasets/synthetic_dataset/images/67.jpeg')
+            # img.resize((256, 256, 3))
+            # img = np.asarray(img, dtype = np.float32)
+            # img = torch.tensor(img)
+            # img = torch.unsqueeze(img, 0)
+            # preds = self.model(img, **inps)
+            # import json
+            # preds = preds.detach().numpy()
+            # with open('x.json','w') as f: json.dump(preds.tolist(), f)
+            # torch.save(preds, 'preds.pt')
+            # torch.save(imgs, 'imgs.pt')
             # if type(combined_hm_preds)!=list and type(combined_hm_preds)!=tuple:
             #     combined_hm_preds = [combined_hm_preds]
+            # import pdb;pdb.set_trace()
             loss = self.calc_loss(**labels, combined_hm_preds=combined_hm_preds)
             return list(combined_hm_preds) + list([loss])
 
