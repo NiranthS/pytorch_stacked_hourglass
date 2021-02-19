@@ -67,14 +67,14 @@ def mpii_eval(pred, gt, normalizing, num_train, bound=0.5):
     Use PCK with threshold of .5 of normalized distance (presumably head size)
     """
 
-    correct = {'all': {'total': 0, 'ankle': 0, 'knee': 0, 'hip': 0, 'pelvis': 0, 
-               'thorax': 0, 'neck': 0, 'head': 0, 'wrist': 0, 'elbow': 0, 
+    correct = {'all': {'total': 0, 'ankle': 0, 'knee': 0, 'hip': 0,  
+               'thorax': 0,  'head': 0, 'wrist': 0, 'elbow': 0, 
                'shoulder': 0},
-               'visible': {'total': 0, 'ankle': 0, 'knee': 0, 'hip': 0, 'pelvis': 0, 
-               'thorax': 0, 'neck': 0, 'head': 0, 'wrist': 0, 'elbow': 0, 
+               'visible': {'total': 0, 'ankle': 0, 'knee': 0, 'hip': 0, 
+               'thorax': 0,  'head': 0, 'wrist': 0, 'elbow': 0, 
                'shoulder': 0},
-               'not visible': {'total': 0, 'ankle': 0, 'knee': 0, 'hip': 0, 'pelvis': 0, 
-               'thorax': 0, 'neck': 0, 'head': 0, 'wrist': 0, 'elbow': 0, 
+               'not visible': {'total': 0, 'ankle': 0, 'knee': 0, 'hip': 0,  
+               'thorax': 0,  'head': 0, 'wrist': 0, 'elbow': 0, 
                'shoulder': 0}}
     count = copy.deepcopy(correct)
     correct_train = copy.deepcopy(correct)
@@ -225,7 +225,7 @@ def main():
         gts.append(anns)
         pred = do(img, c, s)
         preds.append(pred)
-        normalizing.append(n)
+        # normalizing.append(n)
 
     mpii_eval(preds, gts, normalizing, num_train)
 

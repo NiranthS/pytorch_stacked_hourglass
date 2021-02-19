@@ -21,7 +21,7 @@ __config__ = {
         'num_parts': 14,
         'increase': 0,
         'keys': ['imgs'],
-        'num_eval': 2958, ## number of val examples used. entire set is 2958
+        'num_eval': 2000, ## number of val examples used. entire set is 2958
         'train_num_eval': 300, ## number of train examples tested at test time
     },
 
@@ -31,7 +31,7 @@ __config__ = {
         'output_res': 64,
         'train_iters': 1000,
         'valid_iters': 10,
-        'learning_rate': 1e-2,
+        'learning_rate': 1e-1,
         'max_num_people' : 1,
         'loss': [
             ['combined_hm_loss', 1],
