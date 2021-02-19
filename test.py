@@ -8,7 +8,7 @@ import copy
 
 from utils.group import HeatmapParser
 import utils.img
-import data.MPII.ref_syn as ds
+import data.MPII.ref as ds
 
 parser = HeatmapParser()
 

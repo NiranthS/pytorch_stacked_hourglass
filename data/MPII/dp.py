@@ -133,7 +133,7 @@ def init(config):
     batchsize = config['train']['batchsize']
     current_path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(current_path)
-    import ref_syn as ds
+    import ref as ds
     ds.init()
 
     train, valid = ds.setup_val_split()

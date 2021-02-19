@@ -42,7 +42,7 @@ class MPII:
         v_imgname = [None] * len(self.v_center)
         for i in range(len(self.v_center)):
             v_imgname[i] = val_f['imgname'][i].decode('UTF-8')        
-        
+        import pdb; pdb.set_trace()
         self.center = np.append(self.t_center, self.v_center, axis=0)
         self.scale = np.append(t_scale, v_scale)
         self.part = np.append(t_part, v_part, axis=0)
