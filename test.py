@@ -5,6 +5,7 @@ import os
 import numpy as np
 import h5py
 import copy
+import json
 
 from utils.group import HeatmapParser
 import utils.img
@@ -93,18 +94,14 @@ def mpii_eval(pred, gt, normalizing, num_train, bound=0.5):
             elif j==2 or j==3:
                 joint = 'hip'
             elif j==6:
-                joint = 'pelvis'
-            elif j==7:
                 joint = 'thorax'
-            elif j==8:
-                joint = 'neck'
-            elif j==9:
+            elif j==7:
                 joint = 'head'
-            elif j==10 or j==15:
+            elif j==8 or j==13:
                 joint = 'wrist'
-            elif j==11 or j==14:
+            elif j==9 or j==12:
                 joint = 'elbow'
-            elif j==12 or j==13:
+            elif j==10 or j==11:
                 joint = 'shoulder'
 
             if idx >= num_train:
@@ -118,6 +115,7 @@ def mpii_eval(pred, gt, normalizing, num_train, bound=0.5):
                 count_train[vis]['total'] += 1
                 count_train[vis][joint] += 1    
             error = np.linalg.norm(p[0]['keypoints'][j,:2]-g[0,j,:2]) / normalize
+            import pdb; pdb.set_trace()
             if idx >= num_train:
                 if bound > error:
                     correct['all']['total'] += 1
@@ -140,35 +138,48 @@ def mpii_eval(pred, gt, normalizing, num_train, bound=0.5):
             print('Tra PCK @,', bound, ',', key, ':', round(correct_train[k][key] / max(count_train[k][key],1), 3), ', count:', count_train[k][key])
         print('\n')
             
-def get_img(config, num_eval=2958, num_train=300):
+def get_img(config, num_eval=2000, num_train=300):
     '''
     Load validation and training images
     '''
     input_res = config['train']['input_res']
     output_res = config['train']['output_res']
-    val_f = h5py.File(os.path.join(ds.annot_dir, 'valid.h5'), 'r')
-    
+    # val_f = h5py.File(os.path.join(ds.annot_dir, 'valid.h5'), 'r')
+    with open(os.path.join(ds.annot_dir, 'annotations.json')) as anno_file:
+        anno = json.load(anno_file)
+        # import pdb; pdb.set_trace()
+
+    train_f, val_f = [], []
+    for idx, val in enumerate(anno):
+        if val['isValidation'] == True:
+            val_f.append(anno[idx])
+        else:
+            train_f.append(anno[idx])
     tr = tqdm.tqdm( range(0, num_train), total = num_train )
     ## training
-    train_f = h5py.File(os.path.join(ds.annot_dir, 'train.h5') ,'r')
+    # train_f = h5py.File(os.path.join(ds.annot_dir, 'train.h5') ,'r')
     for i in tr:
-        path_t = '%s/%s' % (ds.img_dir, train_f['imgname'][i].decode('UTF-8'))        
+        path_t = '%s/%s' % (ds.img_dir, train_f[i]['img_paths'])        
         
         ## img
+        # import pdb;pdb.set_trace()
+        if i==22:
+            continue
         orig_img = cv2.imread(path_t)[:,:,::-1]
-        c = train_f['center'][i]
-        s = train_f['scale'][i]
+        c = train_f[i]['objpos']
+        s = train_f[i]['scale_provided']
         im = utils.img.crop(orig_img, c, s, (input_res, input_res))
         
         ## kp
-        kp = train_f['part'][i]
-        vis = train_f['visible'][i]
-        kp2 = np.insert(kp, 2, vis, axis=1)
+        # kp = np.expand_dims(np.array(train_f[i]['joint_self'])[:,:2], 0)
+        # vis = np.expand_dims(np.array(train_f[i]['joint_self'])[:,2], 0)
+        # import pdb;pdb.set_trace()
+        # kp2 = np.insert(kp, 2, vis, axis=1)
         kps = np.zeros((1, 14, 3))
-        kps[0] = kp2
+        kps[0] = np.expand_dims(np.array(train_f[i]['joint_self'])[:,:], 0)[0]
         
         ## normalize (to make errors more fair on high pixel imgs)
-        n = train_f['normalize'][i]
+        n = 1.0
         
         yield kps, im, c, s, n
                 
@@ -176,23 +187,23 @@ def get_img(config, num_eval=2958, num_train=300):
     tr2 = tqdm.tqdm( range(0, num_eval), total = num_eval )
     ## validation
     for i in tr2:
-        path_t = '%s/%s' % (ds.img_dir, val_f['imgname'][i].decode('UTF-8')) 
+        path_t = '%s/%s' % (ds.img_dir, val_f[i]['img_paths']) 
         
         ## img
         orig_img = cv2.imread(path_t)[:,:,::-1]
-        c = val_f['center'][i]
-        s = val_f['scale'][i]
+        c = val_f[i]['objpos']
+        s = val_f[i]['scale_provided']
         im = utils.img.crop(orig_img, c, s, (input_res, input_res))
         
         ## kp
-        kp = val_f['part'][i]
-        vis = val_f['visible'][i]
-        kp2 = np.insert(kp, 2, vis, axis=1)
+        # kp = np.expand_dims(np.array(val_f[i]['joint_self'])[:, :2], 0)
+        # vis = np.expand_dims(np.array(val_f[i]['joint_self'])[:, 2], 0)
+        # kp2 = np.insert(kp, 2, vis, axis=1)
         kps = np.zeros((1, 14, 3))
-        kps[0] = kp2
+        kps[0] = np.expand_dims(np.array(val_f[i]['joint_self'])[:, :], 0)[0]
         
         ## normalize (to make errors more fair on high pixel imgs)
-        n = val_f['normalize'][i]
+        n = 1.0
         
         yield kps, im, c, s, n
     

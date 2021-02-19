@@ -19,8 +19,8 @@ __config__ = {
         'num_parts': 14,
         'increase': 0,
         'keys': ['imgs'],
-        'num_eval': 2958, ## number of val examples used. entire set is 2958
-        'train_num_eval': 300, ## number of train examples tested at test time
+        'num_eval': 20, ## number of val examples used. entire set is 2958
+        'train_num_eval': 0, ## number of train examples tested at test time
     },
 
     'train': {
@@ -81,7 +81,7 @@ def make_network(configs):
     ## creating new posenet
     PoseNet = importNet(configs['network'])
     poseNet = PoseNet(**config)
-    forward_net = DataParallel(poseNet.cuda())
+    forward_net = DataParallel(poseNet)
     config['net'] = Trainer(forward_net, configs['inference']['keys'], calc_loss)
     
     ## optimizer, experiment setup
