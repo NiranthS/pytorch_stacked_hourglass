@@ -8,8 +8,8 @@ def _isArrayLike(obj):
     return hasattr(obj, '__iter__') and hasattr(obj, '__len__')
 
 annot_dir = 'data/MPII/annot'
-# img_dir = '/home/niranth/Desktop/projects/datasets/mpii_dataset/images'
-img_dir = '/media/niranth/DATA/Datasets/mpii/images'
+img_dir = '/home/niranth/Desktop/projects/datasets/mpii_dataset/images'
+# img_dir = '/media/niranth/DATA/Datasets/mpii/images'
 # img_dir = '/home/niranth/Desktop/projects/datasets/synthetic_dataset/images'
 
 assert os.path.exists(img_dir)
