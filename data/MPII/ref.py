@@ -8,9 +8,7 @@ def _isArrayLike(obj):
     return hasattr(obj, '__iter__') and hasattr(obj, '__len__')
 
 annot_dir = 'data/MPII/annot'
-# img_dir = '/home/niranth/Desktop/projects/datasets/mpii_dataset/images'
-img_dir = '/media/niranth/DATA/Datasets/mpii/images'
-# img_dir = '/home/niranth/Desktop/projects/datasets/synthetic_dataset/images'
+img_dir = 'data/MPII/images'
 
 assert os.path.exists(img_dir)
 mpii, num_examples_train, num_examples_val = None, None, None
@@ -24,7 +22,7 @@ class MPII:
 
         train_f = h5py.File(os.path.join(annot_dir, 'train.h5'), 'r')
         val_f = h5py.File(os.path.join(annot_dir, 'valid.h5'), 'r')
-        # import pdb; pdb.set_trace()
+        
         self.t_center = train_f['center'][()]
         t_scale = train_f['scale'][()]
         t_part = train_f['part'][()]
@@ -42,7 +40,7 @@ class MPII:
         v_imgname = [None] * len(self.v_center)
         for i in range(len(self.v_center)):
             v_imgname[i] = val_f['imgname'][i].decode('UTF-8')        
-        # import pdb; pdb.set_trace()
+        
         self.center = np.append(self.t_center, self.v_center, axis=0)
         self.scale = np.append(t_scale, v_scale)
         self.part = np.append(t_part, v_part, axis=0)

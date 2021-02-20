@@ -13,7 +13,7 @@ __config__ = {
     'data_provider': 'data.MPII.dp',
     'network': 'models.posenet.PoseNet',
     'inference': {
-        'nstack': 2,
+        'nstack': 8,
         'inp_dim': 256,
         'oup_dim': 16,
         'num_parts': 16,
@@ -24,7 +24,7 @@ __config__ = {
     },
 
     'train': {
-        'batchsize': 8,
+        'batchsize': 16,
         'input_res': 256,
         'output_res': 64,
         'train_iters': 1000,
@@ -81,7 +81,7 @@ def make_network(configs):
     ## creating new posenet
     PoseNet = importNet(configs['network'])
     poseNet = PoseNet(**config)
-    forward_net = DataParallel(poseNet)
+    forward_net = DataParallel(poseNet.cuda())
     config['net'] = Trainer(forward_net, configs['inference']['keys'], calc_loss)
     
     ## optimizer, experiment setup
